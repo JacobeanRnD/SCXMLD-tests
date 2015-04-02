@@ -50,14 +50,14 @@ module.exports = function(opts) {
     });
   };
 
-  opts.runInstance = function (name, id, done) {
+  opts.runInstance = function (id, done) {
     request({
-      url: opts.api + name + '/' + id,
+      url: opts.api + id,
       method: 'PUT'
     }, function (error, response) {
       expect(error).toBeNull();
       expect(response.statusCode).toBe(201);
-      expect(response.headers.location).toBe(name + '/' + id);
+      expect(response.headers.location).toBe(id);
       expect(response.headers['x-configuration']).toBe('["a"]');
 
       done();

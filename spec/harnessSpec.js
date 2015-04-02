@@ -4,40 +4,38 @@
 
 var util = require('./util')();
 
+var chartName = 'helloworld.scxml',
+  instanceId = chartName + '/test';
+
 describe('SCXMLD', function () {
   beforeEach(function (done) { util.beforeEach(done); });
   afterEach(function (done) { util.afterEach(done); });
 
-  it('should save helloworld statechart', function (done) {
-    util.saveStatechart('helloworld.scxml', util.statechart, done); 
+  it('should save helloworld.scxml', function (done) {
+    util.saveStatechart(chartName, util.statechart, done); 
   });
 
-  it('should run helloworld', function (done) {
-    util.saveStatechart('helloworld.scxml', util.statechart, function () {
-      util.runInstance('helloworld.scxml', 'test', done);
+  it('should run helloworld.scxml', function (done) {
+    util.saveStatechart(chartName, util.statechart, function () {
+      util.runInstance(instanceId, done);
     });
   });
 
   it('should send event "t"', function (done) {
-    util.saveStatechart('helloworld.scxml', util.statechart, function () {
-      util.runInstance('helloworld.scxml', 'test', function () {
-        util.send('helloworld.scxml/test', { name: 't' }, done);  
+    util.saveStatechart(chartName, util.statechart, function () {
+      util.runInstance(instanceId, function () {
+        util.send(instanceId, { name: 't' }, done);  
       });
     });
   });
 
   it('should subscribe to changes and send event "t"', function (done) {
-    util.saveStatechart('helloworld.scxml', util.statechart, function () {
-      util.runInstance('helloworld.scxml', 'test', function () {
-        util.subscribeInstance('helloworld.scxml/test', function (stopListening) {
-          util.send('helloworld.scxml/test', { name: 't' }, function () {
-            var results = [{
-              type: 'onExit',
-              data: 'a'
-            }, {
-              type: 'onEntry',
-              data: 'b'
-            }];
+    util.saveStatechart(chartName, util.statechart, function () {
+      util.runInstance(instanceId, function () {
+        util.subscribeInstance(instanceId, function (stopListening) {
+          util.send(instanceId, { name: 't' }, function () {
+            var results = [ { type: 'onExit', data: 'a' },
+                            { type: 'onEntry', data: 'b' }];
 
             stopListening(results, done);
           });
