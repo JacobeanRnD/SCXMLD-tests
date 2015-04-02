@@ -21,9 +21,5 @@
     "eventsource": "^0.1.6",
     "request": "^2.54.0",
     "scxmld": "git+https://18c2f5d073b47be8b1f92424eb2e4030ea467ea4:x-oauth-basic@github.com/JacobeanRnD/SCXMLD.git"
-  },
-  "engineStrict": true,
-  "engines": {
-    "npm": "2.7.3"
   }
 }
