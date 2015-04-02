@@ -78,9 +78,8 @@ module.exports = function(opts) {
     });
   };
 
-  opts.subscribeInstance = function (id, listening) {
+  opts.subscribeInstance = function (id, startedListening) {
     var es = new eventsource(opts.api + id + '/_changes'),
-      error = null,
       messages = [];
 
     function eventAction (e) { messages.push({ type: e.type, data: e.data }); }
@@ -91,7 +90,7 @@ module.exports = function(opts) {
 
       // Trigger callback and let test know that it started listening
       // Send event source closing function
-      listening(completed);
+      startedListening(completed);
     }, false);
     es.addEventListener('onEntry', eventAction, false);
     es.addEventListener('onExit', eventAction, false);
@@ -102,7 +101,42 @@ module.exports = function(opts) {
 
       expect(messages.length).toBeGreaterThan(0);
       expect(messages).toEqual(results);
-      expect(error).toBe(null);
+
+      done();
+    }
+  };
+
+  opts.subscribeInstanceUntilState = function (id, pass, fail, done, startedListening) {
+    var es = new eventsource(opts.api + id + '/_changes');
+
+    function eventAction (e) {
+      expect(e.type).not.toBe('error');
+      expect(e.data).not.toBe(fail);
+
+      if(e.data === pass) {
+        expect(e.data).toBe(pass);
+
+        return completed();
+      }
+
+      if(e.data === fail || e.type === 'error') {
+        return completed(false);
+      }
+    }
+
+    es.addEventListener('subscribed', function (e) {
+      expect(e.type).toBe('subscribed');
+      expect(e.data.length).toBe(0);
+
+      // Trigger callback and let test know that it started listening
+      startedListening();
+    }, false);
+    es.addEventListener('onEntry', eventAction, false);
+    es.addEventListener('onExit', eventAction, false);
+    es.onerror = eventAction;
+
+    function completed() {
+      es.close();
 
       done();
     }

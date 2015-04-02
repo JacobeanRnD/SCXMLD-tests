@@ -43,4 +43,14 @@ describe('SCXMLD', function () {
       });
     });
   });
+
+  it('should end up at "b" state', function (done) {
+    util.saveStatechart(chartName, util.statechart, function () {
+      util.runInstance(instanceId, ['a'], function () {
+        util.subscribeInstanceUntilState(instanceId, 'b', 'c', done, function () {
+          util.send(instanceId, { name: 't' }, ['b']);
+        });
+      });
+    });
+  });
 });
