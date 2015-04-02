@@ -19,7 +19,6 @@
   "homepage": "https://github.com/JacobeanRnD/SCXMLD-tests",
   "dependencies": {
     "eventsource": "^0.1.6",
-    "install": "^0.1.8",
     "request": "^2.54.0",
     "scxmld": "git+https://18c2f5d073b47be8b1f92424eb2e4030ea467ea4:x-oauth-basic@github.com/JacobeanRnD/SCXMLD.git"
   }
