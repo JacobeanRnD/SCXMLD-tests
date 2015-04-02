@@ -1,0 +1,112 @@
+'use strict';
+// jshint node: true
+/* global expect */
+
+var scxmld = require('scxmld'),
+  request = require('request'),
+  eventsource = require('eventsource');
+
+module.exports = function(opts) {
+  opts = opts || {};
+  opts.port = opts.port || 6003;
+  opts.host = 'http://localhost:' + opts.port;
+  opts.baseApi = '/api/v1/';
+  opts.api = opts.host + opts.baseApi;
+
+  opts.beforeEach = function (done) {
+    this.server = scxmld.listen(opts.port);
+    done();
+  };
+
+  opts.afterEach = function (done) {
+    this.server.close();
+    
+    done();
+  };
+
+  opts.statechart = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+                      '<scxml xmlns="http://www.w3.org/2005/07/scxml" name="helloworld" datamodel="ecmascript" version="1.0">\n' +
+                      '  <state id="a">\n' +
+                      '    <transition target="b" event="t"/>\n' +
+                      '  </state>\n' +
+                      '  <state id="b">\n' +
+                      '    <transition target="c" event="t"/>\n' +
+                      '  </state>\n' +
+                      '  <state id="c">\n' +
+                      '    <transition target="a" event="t"/>\n' +
+                      '  </state>\n' +
+                      '</scxml>';
+
+  opts.saveStatechart = function (name, content, done) {
+    request({
+      url: opts.api + name,
+      method: 'PUT',
+      body: content
+    }, function (error, response) {
+      expect(error).toBeNull();
+      expect(response.statusCode).toBe(201);
+      expect(response.headers.location).toBe(name);
+      done();
+    });
+  };
+
+  opts.runInstance = function (name, id, done) {
+    request({
+      url: opts.api + name + '/' + id,
+      method: 'PUT'
+    }, function (error, response) {
+      expect(error).toBeNull();
+      expect(response.statusCode).toBe(201);
+      expect(response.headers.location).toBe(name + '/' + id);
+      expect(response.headers['x-configuration']).toBe('["a"]');
+
+      done();
+    });
+  };
+
+  opts.send = function (id, event, done) {
+    request({
+      url: opts.api + id,
+      method: 'POST',
+      json: event
+    }, function (error, response) {
+      expect(error).toBeNull();
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['x-configuration']).toBe('["b"]');
+
+      if(done) done();
+    });
+  };
+
+  opts.subscribeInstance = function (id, listening) {
+    var es = new eventsource(opts.api + id + '/_changes'),
+      error = null,
+      messages = [];
+
+    function eventAction (e) { messages.push({ type: e.type, data: e.data }); }
+
+    es.addEventListener('subscribed', function (e) {
+      expect(e.type).toBe('subscribed');
+      expect(e.data.length).toBe(0);
+
+      // Trigger callback and let test know that it started listening
+      // Send event source closing function
+      listening(completed);
+    }, false);
+    es.addEventListener('onEntry', eventAction, false);
+    es.addEventListener('onExit', eventAction, false);
+    es.onerror = eventAction;
+
+    function completed(results, done) {
+      es.close();
+
+      expect(messages.length).toBeGreaterThan(0);
+      expect(messages).toEqual(results);
+      expect(error).toBe(null);
+
+      done();
+    }
+  };
+
+  return opts;
+};
