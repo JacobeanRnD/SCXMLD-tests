@@ -17,23 +17,23 @@ describe('SCXMLD', function () {
 
   it('should run helloworld.scxml', function (done) {
     util.saveStatechart(chartName, util.statechart, function () {
-      util.runInstance(instanceId, done);
+      util.runInstance(instanceId, ['a'], done);
     });
   });
 
   it('should send event "t"', function (done) {
     util.saveStatechart(chartName, util.statechart, function () {
-      util.runInstance(instanceId, function () {
-        util.send(instanceId, { name: 't' }, done);  
+      util.runInstance(instanceId, ['a'], function () {
+        util.send(instanceId, { name: 't' }, ['b'], done);  
       });
     });
   });
 
   it('should subscribe to changes and send event "t"', function (done) {
     util.saveStatechart(chartName, util.statechart, function () {
-      util.runInstance(instanceId, function () {
+      util.runInstance(instanceId, ['a'], function () {
         util.subscribeInstance(instanceId, function (stopListening) {
-          util.send(instanceId, { name: 't' }, function () {
+          util.send(instanceId, { name: 't' }, ['b'], function () {
             var results = [ { type: 'onExit', data: 'a' },
                             { type: 'onEntry', data: 'b' }];
 

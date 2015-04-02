@@ -50,7 +50,7 @@ module.exports = function(opts) {
     });
   };
 
-  opts.runInstance = function (id, done) {
+  opts.runInstance = function (id, result, done) {
     request({
       url: opts.api + id,
       method: 'PUT'
@@ -58,13 +58,13 @@ module.exports = function(opts) {
       expect(error).toBeNull();
       expect(response.statusCode).toBe(201);
       expect(response.headers.location).toBe(id);
-      expect(response.headers['x-configuration']).toBe('["a"]');
+      expect(JSON.parse(response.headers['x-configuration'])).toEqual(result);
 
       done();
     });
   };
 
-  opts.send = function (id, event, done) {
+  opts.send = function (id, event, result, done) {
     request({
       url: opts.api + id,
       method: 'POST',
@@ -72,7 +72,7 @@ module.exports = function(opts) {
     }, function (error, response) {
       expect(error).toBeNull();
       expect(response.statusCode).toBe(200);
-      expect(response.headers['x-configuration']).toBe('["b"]');
+      expect(JSON.parse(response.headers['x-configuration'])).toEqual(result);
 
       if(done) done();
     });
