@@ -20,7 +20,7 @@ module.exports = function(opts) {
 
   opts.beforeEach = function (done) {
     if(opts.server) {
-      console.log('Cleanup timed out server');
+      console.log('\u001b[31mCleanup timed out server\u001b[0m');
       // This is a workaround for jasmine
       // Jasmine doesn't cleanup on timeouts
       opts.server.close();
@@ -138,7 +138,8 @@ module.exports = function(opts) {
     var es = new eventsource(opts.api + id + '/_changes');
 
     function eventAction (e) {
-      console.log(JSON.stringify(e));
+      console.log(JSON.stringify({ type: e.type, data: e.data }));
+
       expect(e.type).not.toBe('error');
       expect(e.data).not.toBe(fail);
 

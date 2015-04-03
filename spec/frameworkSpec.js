@@ -19,7 +19,7 @@ describe('SCXMLD - scxml-test-framework', function () {
     var testName = pathfolders[pathfolders.length - 2] + '/' + path.basename(file);
     // Actual test
     it('should pass ' + testName, function (done) {
-      console.log('\n\u001b[32m' + testName + '\u001b[0m');
+      console.log('\n\u001b[34m' + testName + '\u001b[0m');
 
       util.saveStatechart(chartName, util.read(file), function () {
         util.runInstance(instanceId, function () {
@@ -36,6 +36,8 @@ describe('SCXMLD - scxml-test-framework', function () {
             // Get only the last event and set it as pass state
             if(lastEvent.nextConfiguration) passState = lastEvent.nextConfiguration[0];
           }
+
+          console.log('Pass state:', passState);
 
           // Start listening
           util.subscribeInstanceUntilState(instanceId, passState, 'fail', done, function () {
