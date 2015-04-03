@@ -23,20 +23,28 @@ module.exports = function(opts) {
       console.log('\u001b[31mCleanup timed out server\u001b[0m');
       // This is a workaround for jasmine
       // Jasmine doesn't cleanup on timeouts
-      opts.server.close();
-      delete opts.server;
+      opts.server.close(function () {
+        delete opts.server;
+
+        opts.startServer(done);        
+      });
     }
 
-    opts.server = scxmld.listen(opts.port);
+    opts.startServer(done);
+  };
 
-    done();
+  opts.startServer = function (done) {
+    opts.server = scxmld.listen(opts.port, function () {
+      done();
+    });
   };
 
   opts.afterEach = function (done) {
-    opts.server.close();
-    delete opts.server;
+    opts.server.close(function () {
+      delete opts.server;
 
-    done();
+      done();
+    });
   };
 
   opts.statechart = '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -59,9 +67,16 @@ module.exports = function(opts) {
       body: content
     }, function (error, response) {
       expect(error).toBeNull();
+
+      if(error) {
+        console.log('save statechart error', error);
+        return done();
+      }
+
       expect(response.statusCode).toBe(201);
       expect(response.body).toBe('Created');
       expect(response.headers.location).toBe(name);
+
       done();
     });
   };
@@ -72,6 +87,12 @@ module.exports = function(opts) {
       method: 'PUT'
     }, function (error, response) {
       expect(error).toBeNull();
+
+      if(error) {
+        console.log('run instance error', error);
+        return done();
+      }
+
       expect(response.statusCode).toBe(201);
       expect(response.headers.location).toBe(id);
 
@@ -92,6 +113,12 @@ module.exports = function(opts) {
       json: event
     }, function (error, response) {
       expect(error).toBeNull();
+
+      if(error) {
+        console.log('send error', error);
+        return done();
+      }
+      
       expect(response.statusCode).toBe(200);
 
       if(result) {
@@ -127,8 +154,9 @@ module.exports = function(opts) {
     function completed(results, done) {
       es.close();
 
-      expect(messages.length).toBeGreaterThan(0);
-      expect(messages).toEqual(results);
+      if(results) {
+        expect(messages).toEqual(results);
+      }
 
       done();
     }
@@ -196,6 +224,12 @@ module.exports = function(opts) {
       method: 'GET'
     }, function (error, response) {
       expect(error).toBeNull();
+
+      if(error) {
+        console.log('get instance conf error', error);
+        return done();
+      }
+      
       expect(response.statusCode).toBe(200);
 
       var body = JSON.parse(response.body);
