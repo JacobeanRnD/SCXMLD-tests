@@ -59,6 +59,12 @@ module.exports = function(opts) {
       body: content
     }, function (error, response) {
       expect(error).toBeNull();
+      
+      if(error) {
+        console.log(error);
+        return done();
+      }
+
       expect(response.statusCode).toBe(201);
       expect(response.body).toBe('Created');
       expect(response.headers.location).toBe(name);
