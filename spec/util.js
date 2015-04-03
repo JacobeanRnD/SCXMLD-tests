@@ -25,10 +25,10 @@ module.exports = function(opts) {
       // Jasmine doesn't cleanup on timeouts
       opts.server.close(function () {
         delete opts.server;
-        opts.server = scxmld.app.listen(opts.port, done);    
+        opts.server = scxmld.listen(opts.port, done);    
       });
     } else {
-      opts.server = scxmld.app.listen(opts.port, done);
+      opts.server = scxmld.listen(opts.port, done);
     }
   };
 
