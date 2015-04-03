@@ -15,8 +15,8 @@ describe('SCXMLD - scxml-test-framework', function () {
   // Run below code for all tests
   util.frameworkFiles.forEach(function (file) {
     // Prepare test name to represent it better on console
-    var pathfolders = path.parse(file).dir.split(path.sep);
-    var testName = pathfolders[pathfolders.length - 1] + '/' + path.basename(file);
+    var pathfolders = file.split(path.sep);
+    var testName = pathfolders[pathfolders.length - 2] + '/' + path.basename(file);
     // Actual test
     it('should pass ' + testName, function (done) {
       console.log(testName);
