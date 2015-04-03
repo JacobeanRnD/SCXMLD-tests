@@ -4,7 +4,7 @@
   "description": "SCXMLD test harness",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node spec/harnessSpec.js --captureExceptions --verbose --forceexit"
+    "test": "jasmine-node spec/ --captureExceptions --verbose --forceexit"
   },
   "repository": {
     "type": "git",

@@ -23,20 +23,20 @@ module.exports = function(opts) {
       console.log('Cleanup timed out server');
       // This is a workaround for jasmine
       // Jasmine doesn't cleanup on timeouts
-      opts.server.close(function () {
-        delete opts.server;
-        opts.server = scxmld.listen(opts.port, done);    
-      });
-    } else {
-      opts.server = scxmld.listen(opts.port, done);
+      opts.server.close();
+      delete opts.server;
     }
+
+    opts.server = scxmld.listen(opts.port);
+
+    done();
   };
 
   opts.afterEach = function (done) {
-    opts.server.close(function () {
-      delete opts.server;
-      done();
-    });
+    opts.server.close();
+    delete opts.server;
+
+    done();
   };
 
   opts.statechart = '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -59,12 +59,6 @@ module.exports = function(opts) {
       body: content
     }, function (error, response) {
       expect(error).toBeNull();
-      
-      if(error) {
-        console.log(error);
-        return done();
-      }
-
       expect(response.statusCode).toBe(201);
       expect(response.body).toBe('Created');
       expect(response.headers.location).toBe(name);
