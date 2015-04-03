@@ -27,9 +27,7 @@ module.exports = function(opts) {
       delete opts.server;
     }
 
-    opts.server = scxmld.app.listen(opts.port);
-
-    done();
+    opts.server = scxmld.app.listen(opts.port, done);
   };
 
   opts.afterEach = function (done) {
