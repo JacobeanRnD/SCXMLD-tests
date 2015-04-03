@@ -4,7 +4,9 @@
 
 var scxmld = require('scxmld'),
   request = require('request'),
-  eventsource = require('eventsource');
+  eventsource = require('eventsource'),
+  path = require('path'),
+  fs = require('fs');
 
 module.exports = function(opts) {
   opts = opts || {};
@@ -12,6 +14,9 @@ module.exports = function(opts) {
   opts.host = 'http://localhost:' + opts.port;
   opts.baseApi = '/api/v1/';
   opts.api = opts.host + opts.baseApi;
+
+  opts.testFiles = require('../testList.json');
+  opts.testFolder = path.resolve(__dirname + '/../node_modules/scxml-test-framework/test') + '/';
 
   opts.beforeEach = function (done) {
     this.server = scxmld.listen(opts.port);
@@ -58,7 +63,12 @@ module.exports = function(opts) {
       expect(error).toBeNull();
       expect(response.statusCode).toBe(201);
       expect(response.headers.location).toBe(id);
-      expect(JSON.parse(response.headers['x-configuration'])).toEqual(result);
+
+      if(typeof(result) === 'function') {
+        done = result; 
+      } else {
+        expect(JSON.parse(response.headers['x-configuration'])).toEqual(result);
+      }
 
       done();
     });
@@ -120,7 +130,7 @@ module.exports = function(opts) {
       }
 
       if(e.data === fail || e.type === 'error') {
-        return completed(false);
+        return completed();
       }
     }
 
@@ -128,8 +138,18 @@ module.exports = function(opts) {
       expect(e.type).toBe('subscribed');
       expect(e.data.length).toBe(0);
 
+      // Check if instance is already on pass/fail state
+      opts.getInstanceConfiguration(id, function (result) {
+        var currentStates = result[0];
+
+        // Simulate receiving changes
+        currentStates.forEach(function (state) {
+          eventAction({ type: 'onEntry', data: state });
+        });
+      });
+
       // Trigger callback and let test know that it started listening
-      startedListening();
+      if(startedListening) startedListening();
     }, false);
     es.addEventListener('onEntry', eventAction, false);
     es.addEventListener('onExit', eventAction, false);
@@ -140,6 +160,34 @@ module.exports = function(opts) {
 
       done();
     }
+  };
+
+  opts.frameworkFiles = opts.testFiles.map(function (filePath) {
+    return opts.testFolder + filePath;
+  });
+
+  opts.read = function (path) {
+    return fs.readFileSync(path, 'utf-8');
+  };
+
+  opts.getInstanceConfiguration = function (id, result, done) {
+    request({
+      url: opts.api + id,
+      method: 'GET'
+    }, function (error, response) {
+      expect(error).toBeNull();
+      expect(response.statusCode).toBe(200);
+
+      var body = JSON.parse(response.body);
+
+      if(typeof(result) === 'function') {
+        done = result; 
+      } else {
+        expect(body).toEqual(result);
+      }
+
+      done(body);
+    });
   };
 
   return opts;
