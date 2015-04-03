@@ -138,6 +138,7 @@ module.exports = function(opts) {
     var es = new eventsource(opts.api + id + '/_changes');
 
     function eventAction (e) {
+      console.log(JSON.stringify(e));
       expect(e.type).not.toBe('error');
       expect(e.data).not.toBe(fail);
 

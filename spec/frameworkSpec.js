@@ -19,7 +19,7 @@ describe('SCXMLD - scxml-test-framework', function () {
     var testName = pathfolders[pathfolders.length - 2] + '/' + path.basename(file);
     // Actual test
     it('should pass ' + testName, function (done) {
-      console.log(testName);
+      console.log('\n\u001b[32m' + testName + '\u001b[0m');
 
       util.saveStatechart(chartName, util.read(file), function () {
         util.runInstance(instanceId, function () {
@@ -41,7 +41,7 @@ describe('SCXMLD - scxml-test-framework', function () {
           util.subscribeInstanceUntilState(instanceId, passState, 'fail', done, function () {
             // Send events on started listening
             events.forEach(function (eventDetails) {
-              util.send(instanceId, eventDetails.event);
+              util.send(instanceId, eventDetails.event, eventDetails.nextConfiguration);
             });
           });
         });
