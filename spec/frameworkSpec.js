@@ -12,11 +12,38 @@ describe('SCXMLD - scxml-test-framework', function () {
   beforeEach(function (done) { util.beforeEach(done); });
   afterEach(function (done) { util.afterEach(done); });
 
+  // Run below code for all tests
   util.frameworkFiles.forEach(function (file) {
-    it('should pass ' + path.basename(file), function (done) {
+    // Prepare test name to represent it better on console
+    var pathfolders = path.parse(file).dir.split(path.sep);
+    var testName = pathfolders[pathfolders.length - 1] + '/' + path.basename(file);
+    // Actual test
+    it('should pass ' + testName, function (done) {
+      console.log(testName);
+
       util.saveStatechart(chartName, util.read(file), function () {
         util.runInstance(instanceId, function () {
-          util.subscribeInstanceUntilState(instanceId, 'pass', 'fail', done);
+          // Get filename.json
+          var settings = require(file.slice(0, -6) + '.json'),
+            events = [],
+            passState = 'pass'; //Default pass state is pass
+
+          // Check if scxml needs extra events sent
+          if(settings.events && settings.events.length > 0) {
+            events = settings.events;
+            var lastEvent = settings.events[settings.events.length - 1];
+
+            // Get only the last event and set it as pass state
+            if(lastEvent.nextConfiguration) passState = lastEvent.nextConfiguration[0];
+          }
+
+          // Start listening
+          util.subscribeInstanceUntilState(instanceId, passState, 'fail', done, function () {
+            // Send events on started listening
+            events.forEach(function (eventDetails) {
+              util.send(instanceId, eventDetails.event, eventDetails.nextConfiguration);
+            });
+          });
         });
       });
     });

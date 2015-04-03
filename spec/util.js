@@ -19,13 +19,23 @@ module.exports = function(opts) {
   opts.testFolder = path.resolve(__dirname + '/../node_modules/scxml-test-framework/test') + '/';
 
   opts.beforeEach = function (done) {
-    this.server = scxmld.listen(opts.port);
+    if(opts.server) {
+      console.log('Cleanup timed out server');
+      // This is a workaround for jasmine
+      // Jasmine doesn't cleanup on timeouts
+      opts.server.close();
+      delete opts.server;
+    }
+
+    opts.server = scxmld.app.listen(opts.port);
+
     done();
   };
 
   opts.afterEach = function (done) {
-    this.server.close();
-    
+    opts.server.close();
+    delete opts.server;
+
     done();
   };
 
@@ -50,6 +60,7 @@ module.exports = function(opts) {
     }, function (error, response) {
       expect(error).toBeNull();
       expect(response.statusCode).toBe(201);
+      expect(response.body).toBe('Created');
       expect(response.headers.location).toBe(name);
       done();
     });
@@ -82,7 +93,12 @@ module.exports = function(opts) {
     }, function (error, response) {
       expect(error).toBeNull();
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.headers['x-configuration'])).toEqual(result);
+
+      if(typeof(result) === 'function') {
+        done = result; 
+      } else {
+        expect(JSON.parse(response.headers['x-configuration']).sort()).toEqual(result.sort());
+      }
 
       if(done) done();
     });
