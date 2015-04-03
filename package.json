@@ -1,0 +1,27 @@
+{
+  "name": "SCXMLD-tests",
+  "version": "1.0.0",
+  "description": "SCXMLD test harness",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node spec/ --captureExceptions --verbose --forceexit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JacobeanRnD/SCXMLD-tests.git"
+  },
+  "private": true,
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JacobeanRnD/SCXMLD-tests/issues"
+  },
+  "homepage": "https://github.com/JacobeanRnD/SCXMLD-tests",
+  "dependencies": {
+    "async": "^0.9.0",
+    "eventsource": "^0.1.6",
+    "request": "^2.54.0",
+    "scxml-test-framework": "git://github.com/jbeard4/scxml-test-framework.git#2.0.0",
+    "scxmld": "git+https://18c2f5d073b47be8b1f92424eb2e4030ea467ea4:x-oauth-basic@github.com/JacobeanRnD/SCXMLD.git"
+  }
+}
