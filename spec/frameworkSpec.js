@@ -41,7 +41,7 @@ describe('SCXMLD - scxml-test-framework', function () {
           util.subscribeInstanceUntilState(instanceId, passState, 'fail', done, function () {
             // Send events on started listening
             events.forEach(function (eventDetails) {
-              util.send(instanceId, eventDetails.event, eventDetails.nextConfiguration);
+              util.send(instanceId, eventDetails.event);
             });
           });
         });

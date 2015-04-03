@@ -94,10 +94,12 @@ module.exports = function(opts) {
       expect(error).toBeNull();
       expect(response.statusCode).toBe(200);
 
-      if(typeof(result) === 'function') {
-        done = result; 
-      } else {
-        expect(JSON.parse(response.headers['x-configuration']).sort()).toEqual(result.sort());
+      if(result) {
+        if(typeof(result) === 'function') {
+          done = result; 
+        } else {
+          expect(JSON.parse(response.headers['x-configuration']).sort()).toEqual(result.sort());
+        } 
       }
 
       if(done) done();
