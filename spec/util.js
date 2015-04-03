@@ -218,7 +218,7 @@ module.exports = function(opts) {
     return fs.readFileSync(path, 'utf-8');
   };
 
-  opts.getInstanceConfiguration = function (id, result, done) {
+  opts.getInstanceConfiguration = function (id, done) {
     request({
       url: opts.api + id,
       method: 'GET'
@@ -231,14 +231,8 @@ module.exports = function(opts) {
       }
       
       expect(response.statusCode).toBe(200);
-
+      
       var body = JSON.parse(response.body);
-
-      if(typeof(result) === 'function') {
-        done = result; 
-      } else {
-        expect(body).toEqual(result);
-      }
 
       done(body);
     });
