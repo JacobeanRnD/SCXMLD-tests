@@ -9,7 +9,11 @@ var chartName = 'helloworld.scxml',
 
 describe('SCXMLD', function () {
   beforeEach(function (done) { util.beforeEach(done); });
-  afterEach(function (done) { util.afterEach(done); });
+  afterEach(function (done) { 
+    util.deleteStatechart(chartName, function(){
+      util.afterEach(done); 
+    });
+  });
 
   it('should save helloworld.scxml', function (done) {
     util.saveStatechart(chartName, util.statechart, done); 

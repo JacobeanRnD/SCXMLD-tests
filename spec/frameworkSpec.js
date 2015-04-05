@@ -11,7 +11,11 @@ var chartName = 'helloworld.scxml',
 
 describe('SCXMLD - scxml-test-framework', function () {
   beforeEach(function (done) { util.beforeEach(done); });
-  afterEach(function (done) { util.afterEach(done); });
+  afterEach(function (done) { 
+    util.deleteStatechart(chartName, function(){
+      util.afterEach(done); 
+    });
+  });
 
   // Run below code for all tests
   util.frameworkFiles.forEach(function (file) {

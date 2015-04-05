@@ -34,12 +34,14 @@ module.exports = function(opts) {
   };
 
   opts.startServer = function (done) {
-    opts.server = scxmld.listen(opts.port, function () {
-      done();
+    scxmld.init(opts.port, function(err, app){
+      opts.server = app.listen(opts.port, done);
     });
   };
 
   opts.afterEach = function (done) {
+    //Run request delete methods here
+    //On success, delete server, call done()
     opts.server.close(function () {
       delete opts.server;
 
@@ -235,6 +237,25 @@ module.exports = function(opts) {
       var body = JSON.parse(response.body);
 
       done(body);
+    });
+  };
+
+  opts.deleteStatechart = function(scName, done){
+    request({
+      url: opts.api + scName,
+      method: 'DELETE'
+    }, function (error, response, body) {
+      console.log('delete response', error, response.statusCode, body);
+      expect(error).toBeNull();
+
+      if(error) {
+        console.log('error on sc delete', error);
+        return done(error);
+      }
+      
+      expect(response.statusCode).toBe(200);
+
+      done();
     });
   };
 
