@@ -251,7 +251,6 @@ module.exports = function(opts) {
       url: opts.api + scName,
       method: 'DELETE'
     }, function (error, response, body) {
-      console.log('delete response', error, response.statusCode, body);
       expect(error).toBeNull();
 
       if(error) {
