@@ -34,8 +34,14 @@ module.exports = function(opts) {
   };
 
   opts.startServer = function (done) {
-    scxmld.init(opts.port, function(err, app){
-      opts.server = app.listen(opts.port, done);
+    scxmld.initExpress({ port: opts.port }, function (err, express) {
+      console.log('Starting server on port:', opts.port);
+      if(err) {
+        console.log(err);
+        return done();
+      }
+
+      opts.server = express.app.listen(opts.port, done);
     });
   };
 
