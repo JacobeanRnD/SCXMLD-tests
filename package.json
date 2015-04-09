@@ -1,6 +1,6 @@
 {
   "name": "SCXMLD-tests",
-  "version": "1.0.0",
+  "version": "0.0.1a",
   "description": "SCXMLD test harness",
   "main": "index.js",
   "scripts": {
@@ -10,9 +10,12 @@
     "type": "git",
     "url": "https://github.com/JacobeanRnD/SCXMLD-tests.git"
   },
-  "private": true,
-  "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
+  "author": {
+    "name" : "Feyzullah Daldal",
+    "email" : "hey@feyzo.net",
+    "url" : "http://feyzo.net/"
+  },
   "bugs": {
     "url": "https://github.com/JacobeanRnD/SCXMLD-tests/issues"
   },
