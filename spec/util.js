@@ -82,7 +82,12 @@ module.exports = function(opts) {
       }
 
       expect(response.statusCode).toBe(201);
-      expect(response.body).toBe('Created');
+      expect(JSON.parse(response.body)).toEqual({
+        name: 'success.create.definition',
+        data: {
+          chartName: name
+        }
+      });
       expect(response.headers.location).toBe(name);
 
       done();
@@ -196,7 +201,7 @@ module.exports = function(opts) {
 
       // Check if instance is already on pass/fail state
       opts.getInstanceConfiguration(id, function (result) {
-        var currentStates = result[0];
+        var currentStates = result.data.instance.snapshot[0];
 
         // Simulate receiving changes
         currentStates.forEach(function (state) {
