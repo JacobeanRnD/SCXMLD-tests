@@ -2,7 +2,7 @@
 // jshint node: true
 /* global expect */
 
-var scxmld = require('scxmld'),
+var scxmld = require('../../'),
   request = require('request'),
   eventsource = require('eventsource'),
   path = require('path'),
