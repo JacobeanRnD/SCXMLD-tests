@@ -1,17 +1,16 @@
 'use strict';
 // jshint node: true
-/* global describe, beforeEach, afterEach, it, beforeAll */
+/* global describe, beforeEach, afterEach, it */
 
 var util = require('./util')(),
   async = require('async'),
-  path = require('path');
+  path = require('path'),
+  ignoredTests = require('../ignoredTests.json');
 
 var chartName = 'helloworld.scxml',
   instanceId = chartName + '/test';
 
 describe('SCXMLD - scxml-test-framework', function () {
-  beforeAll(util.beforeAllTestFramework);
-  
   beforeEach(util.beforeEach);
   
   afterEach(function (done) { 
@@ -21,13 +20,16 @@ describe('SCXMLD - scxml-test-framework', function () {
   });
 
   // Run below code for all tests
-  util.frameworkFiles.forEach(function (file) {
+  util.fileList.forEach(function (file) {
+    // Don't run ignored tests
+    if(ignoredTests.indexOf(file) !== -1) return;
+
     // Prepare test name to represent it better on console
     var pathfolders = file.split(path.sep);
     var testName = pathfolders[pathfolders.length - 2] + '/' + path.basename(file);
 
     // Read testname.json file
-    var settings = require(file.slice(0, -6) + '.json'),
+    var settings = require(util.testFolder + file.slice(0, -6) + '.json'),
       events = [],
       passState = 'pass'; //Default pass state is pass
 

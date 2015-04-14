@@ -6,7 +6,8 @@ var scxmld = require('scxmld'),
   request = require('request'),
   eventsource = require('eventsource'),
   path = require('path'),
-  fs = require('fs');
+  fs = require('fs'),
+  glob = require('glob');
 
 module.exports = function(opts) {
   opts = opts || {};
@@ -14,13 +15,10 @@ module.exports = function(opts) {
   opts.host = 'http://localhost:' + opts.port;
   opts.baseApi = '/api/v1/';
   opts.api = opts.host + opts.baseApi;
-
-  opts.testFiles = require('../testList.json');
   opts.testFolder = path.resolve(__dirname + '/../node_modules/scxml-test-framework/test') + '/';
 
-  opts.beforeAllTestFramework = function (done) {
-    done();
-  };
+  // Load every *.scxml file under scxml-test-framework/test
+  opts.fileList = glob.sync('**/*.scxml', { cwd: opts.testFolder });
 
   opts.beforeEach = function (done) {
     if(opts.server) {
@@ -226,14 +224,6 @@ module.exports = function(opts) {
     }
   };
 
-  opts.frameworkFiles = opts.testFiles.map(function (filePath) {
-    return opts.testFolder + filePath;
-  });
-
-  opts.read = function (path) {
-    return fs.readFileSync(path, 'utf-8');
-  };
-
   opts.getInstanceConfiguration = function (id, done) {
     request({
       url: opts.api + id,
@@ -247,14 +237,14 @@ module.exports = function(opts) {
       }
       
       expect(response.statusCode).toBe(200);
-      
+
       var body = JSON.parse(response.body);
 
       done(body);
     });
   };
 
-  opts.deleteStatechart = function(scName, done){
+  opts.deleteStatechart = function(scName, done) {
     request({
       url: opts.api + scName,
       method: 'DELETE'
@@ -269,7 +259,12 @@ module.exports = function(opts) {
       expect(response.statusCode).toBe(200);
 
       done();
+
     });
+  };
+
+  opts.read = function (path) {
+    return fs.readFileSync(opts.testFolder + path, 'utf-8');
   };
 
   return opts;

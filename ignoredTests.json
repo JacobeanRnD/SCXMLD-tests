@@ -7,7 +7,6 @@
   "delayedSend/send2.scxml",
   "delayedSend/send3.scxml",
   "basic/basic0.scxml",
-  "in/TestInPredicate.scxml",
   "internal-transitions/test0.scxml",
   "misc/deep-initial.scxml",
   "parallel/test0.scxml",
