@@ -18,6 +18,10 @@ module.exports = function(opts) {
   opts.testFiles = require('../testList.json');
   opts.testFolder = path.resolve(__dirname + '/../node_modules/scxml-test-framework/test') + '/';
 
+  opts.beforeAllTestFramework = function (done) {
+    done();
+  };
+
   opts.beforeEach = function (done) {
     if(opts.server) {
       console.log('\u001b[31mCleanup timed out server\u001b[0m');
@@ -35,7 +39,6 @@ module.exports = function(opts) {
 
   opts.startServer = function (done) {
     scxmld.initExpress({ port: opts.port }, function (err, express) {
-      console.log('Starting server on port:', opts.port);
       if(err) {
         console.log(err);
         return done();
@@ -255,7 +258,7 @@ module.exports = function(opts) {
     request({
       url: opts.api + scName,
       method: 'DELETE'
-    }, function (error, response, body) {
+    }, function (error, response) {
       expect(error).toBeNull();
 
       if(error) {

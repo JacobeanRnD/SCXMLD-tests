@@ -1,6 +1,6 @@
 'use strict';
 // jshint node: true
-/* global describe, beforeEach, afterEach, it */
+/* global describe, beforeEach, afterEach, it, beforeAll */
 
 var util = require('./util')(),
   async = require('async'),
@@ -10,7 +10,10 @@ var chartName = 'helloworld.scxml',
   instanceId = chartName + '/test';
 
 describe('SCXMLD - scxml-test-framework', function () {
-  beforeEach(function (done) { util.beforeEach(done); });
+  beforeAll(util.beforeAllTestFramework);
+  
+  beforeEach(util.beforeEach);
+  
   afterEach(function (done) { 
     util.deleteStatechart(chartName, function(){
       util.afterEach(done); 
