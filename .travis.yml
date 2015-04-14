@@ -9,6 +9,7 @@ before_install:
 - npm i -g npm@2.7.3
 - jshint .
 - export POSTGRES_URL='postgres://postgres@localhost:5432/scxmld'
+- export WEBSITE_URL='http://scxmldev.io'
 before_script:
 - psql -c 'create database scxmld;' -U postgres
 addons:
