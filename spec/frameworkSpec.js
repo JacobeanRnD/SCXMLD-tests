@@ -57,7 +57,7 @@ describe('SCXMLD - scxml-test-framework', function () {
             // Because they have nextConfiguration set, thus we know what the end result should be
             async.eachSeries(events, function (eventDetails, done) {
               // Send events one after another, waiting for the previous one
-              util.send(instanceId, eventDetails.event, eventDetails.nextConfiguration, done);
+              util.send(instanceId, eventDetails.event, eventDetails.nextConfiguration, eventDetails.after, done);
             }, function () {
               done();
             });

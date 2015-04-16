@@ -34,7 +34,7 @@ describe('SCXMLD', function () {
 
     util.saveStatechart(chartName, util.statechart, function () {
       util.runInstance(instanceId, ['a'], function () {
-        util.send(instanceId, { name: 't' }, ['b'], done);  
+        util.send(instanceId, { name: 't' }, ['b'], null, done);  
       });
     });
   });
@@ -45,7 +45,7 @@ describe('SCXMLD', function () {
     util.saveStatechart(chartName, util.statechart, function () {
       util.runInstance(instanceId, ['a'], function () {
         util.subscribeInstance(instanceId, function (stopListening) {
-          util.send(instanceId, { name: 't' }, ['b'], function () {
+          util.send(instanceId, { name: 't' }, ['b'], null, function () {
             var results = [ { type: 'onExit', data: 'a' },
                             { type: 'onEntry', data: 'b' }];
 
@@ -62,7 +62,7 @@ describe('SCXMLD', function () {
     util.saveStatechart(chartName, util.statechart, function () {
       util.runInstance(instanceId, ['a'], function () {
         util.subscribeInstanceUntilState(instanceId, 'b', 'c', done, function () {
-          util.send(instanceId, { name: 't' }, ['b']);
+          util.send(instanceId, { name: 't' }, ['b'], null);
         });
       });
     });

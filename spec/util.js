@@ -113,14 +113,14 @@ module.exports = function(opts) {
       if(typeof(result) === 'function') {
         done = result; 
       } else {
-        expect(JSON.parse(response.headers['x-configuration'])).toEqual(result);
+        expect(JSON.parse(response.headers['x-configuration']).sort()).toEqual(result.sort());
       }
 
       done();
     });
   };
 
-  opts.send = function (id, event, result, done) {
+  opts.send = function (id, event, result, delay, done) {
     request({
       url: opts.api + id,
       method: 'POST',
@@ -135,16 +135,24 @@ module.exports = function(opts) {
       
       expect(response.statusCode).toBe(200);
 
-      if(result) {
-        if(typeof(result) === 'function') {
-          done = result; 
-        } else {
-          expect(JSON.parse(response.headers['x-configuration']).sort()).toEqual(result.sort());
-        } 
+      if(delay) {
+        setTimeout(function () {
+          opts.getInstanceConfiguration(id, function (instanceResult) {
+            var currentStates = instanceResult.data.instance.snapshot[0];
+
+            checkResult(currentStates, result, done);
+          });
+        }, delay);
+      } else {
+        checkResult(JSON.parse(response.headers['x-configuration']), result, done);
       }
+    });
+
+    function checkResult (states, result, done) {
+      expect(states.sort()).toEqual(result.sort());
 
       if(done) done();
-    });
+    }
   };
 
   opts.subscribeInstance = function (id, startedListening) {
