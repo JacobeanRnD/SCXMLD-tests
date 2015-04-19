@@ -120,33 +120,30 @@ module.exports = function(opts) {
     });
   };
 
-  opts.send = function (id, event, result, delay, done) {
-    request({
-      url: opts.api + id,
-      method: 'POST',
-      json: event
-    }, function (error, response) {
-      expect(error).toBeNull();
+  opts.send = function (id, event, result, delayBefore, done) {
+    if(delayBefore) {
+      setTimeout(sendEvent, delayBefore);
+    } else {
+      sendEvent();
+    }
 
-      if(error) {
-        console.log('send error', error);
-        return done();
-      }
-      
-      expect(response.statusCode).toBe(200);
+    function sendEvent () {
+      request({
+        url: opts.api + id,
+        method: 'POST',
+        json: event
+      }, function (error, response) {
+        expect(error).toBeNull();
 
-      if(delay) {
-        setTimeout(function () {
-          opts.getInstanceConfiguration(id, function (instanceResult) {
-            var currentStates = instanceResult.data.instance.snapshot[0];
-
-            checkResult(currentStates, result, done);
-          });
-        }, delay);
-      } else {
+        if(error) {
+          console.log('send error', error);
+          return done();
+        }
+        
+        expect(response.statusCode).toBe(200);
         checkResult(JSON.parse(response.headers['x-configuration']), result, done);
-      }
-    });
+      });
+    }
 
     function checkResult (states, result, done) {
       expect(states.sort()).toEqual(result.sort());
