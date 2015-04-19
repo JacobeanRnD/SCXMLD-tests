@@ -44,6 +44,8 @@ describe('SCXMLD - scxml-test-framework', function () {
       // Only the last event can be pass state
       if(lastEvent.nextConfiguration) passState = lastEvent.nextConfiguration[0];
     }
+    
+    if(settings.finalPass) passState = settings.finalPass[0];
 
     it('should pass ' + testName, function (done) {
       console.log('\n\u001b[34m' + testName + '\u001b[0m');
