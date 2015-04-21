@@ -47,13 +47,22 @@ describe('SCXMLD - scxml-test-framework', function () {
     
     if(settings.finalPass) passState = settings.finalPass[0];
 
+    if(settings.attachments && settings.attachments.length > 0) {
+      // Resolve attachment paths
+      settings.attachments.forEach(function (fileName, i) {
+        settings.attachments[i] = pathfolders[pathfolders.length - 2] + '/' + fileName;
+      });
+
+      console.log('attachment list', settings.attachments);
+    }
+
     it('should pass ' + testName, function (done) {
       console.log('\n\u001b[34m' + testName + '\u001b[0m');
       console.log('Pass state:', passState);
 
       if(events.length > 0) {
         // Run eventful tests by sending events and checking the result
-        util.saveStatechart(chartName, util.read(file), function () {
+        util.saveStatechart(chartName, util.read(file), settings.attachments, function () {
           util.runInstance(instanceId, function () {
             // If testname.json files contains events we can run them without listening to changes
             // Because they have nextConfiguration set, thus we know what the end result should be
@@ -67,7 +76,7 @@ describe('SCXMLD - scxml-test-framework', function () {
         });
       } else {
         // Run eventless tests with listening to changes
-        util.saveStatechart(chartName, util.read(file), function () {
+        util.saveStatechart(chartName, util.read(file), settings.attachments, function () {
           util.runInstance(instanceId, function () {
             // Provide pass/fail parameters and set it free
             // If it passes, it was, and always will be successful.
