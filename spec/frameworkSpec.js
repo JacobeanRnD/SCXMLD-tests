@@ -1,6 +1,6 @@
 'use strict';
 // jshint node: true
-/* global describe, beforeEach, afterEach, it */
+/* global describe, beforeEach, afterEach, it, xit */
 
 var util = require('./util')(),
   async = require('async'),
@@ -54,6 +54,22 @@ describe('SCXMLD - scxml-test-framework', function () {
       });
 
       console.log('attachment list', settings.attachments);
+    }
+
+    var ignoredForSimpleServer = [
+      'script-src/test0.scxml',
+      'script-src/test1.scxml',
+      'script-src/test2.scxml',
+      'script-src/test3.scxml',
+      'w3c-ecma/test552.txml.scxml',
+      'w3c-ecma/test558.txml.scxml'
+    ];
+    
+    if(ignoredForSimpleServer.indexOf(testName) !== -1) {
+      //Ignore these tests
+      // TODO: Add checks for docker
+      xit('should pass ' + testName);
+      return;
     }
 
     it('should pass ' + testName, function (done) {
