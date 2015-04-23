@@ -1,8 +1,4 @@
 [
-  "script-src/test0.scxml",
-  "script-src/test1.scxml",
-  "script-src/test2.scxml",
-  "script-src/test3.scxml",
   "send-idlocation/test0.scxml",
   "w3c-ecma-in-review/test156.txml.scxml",
   "w3c-ecma-in-review/test329.txml.scxml",
@@ -84,10 +80,8 @@
   "w3c-ecma/test529.txml.scxml",
   "w3c-ecma/test530.txml.scxml",
   "w3c-ecma/test533.txml.scxml",
-  "w3c-ecma/test552.txml.scxml",
   "w3c-ecma/test554.txml.scxml",
   "w3c-ecma/test557.txml.scxml",
-  "w3c-ecma/test558.txml.scxml",
   "w3c-ecma/test562.txml.scxml",
   "w3c-ecma/test570.txml.scxml",
   "w3c-ecma/test576.txml.scxml"
