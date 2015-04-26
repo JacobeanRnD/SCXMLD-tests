@@ -14,8 +14,8 @@ module.exports = function(opts) {
   opts = opts || {};
   opts.port = opts.port || 6003;
   opts.host = 'http://localhost:' + opts.port;
-  opts.baseApi = '/api/v1/';
-  opts.api = opts.host + opts.baseApi;
+  opts.baseApi = '/api/v1';
+  opts.api = opts.host + opts.baseApi + '/';
   opts.testFolder = path.resolve(__dirname + '/../node_modules/scxml-test-framework/test') + '/';
 
   // Load every *.scxml file under scxml-test-framework/test
@@ -151,7 +151,7 @@ module.exports = function(opts) {
 
   opts.send = function (id, event, result, delayBefore, done) {
     if(delayBefore) {
-      setTimeout(sendEvent, delayBefore);
+      setTimeout(sendEvent, delayBefore + 1000);
     } else {
       sendEvent();
     }
@@ -215,6 +215,8 @@ module.exports = function(opts) {
 
     function eventAction (e) {
       console.log(JSON.stringify({ type: e.type, data: e.data }));
+
+      if(e.type === 'error') expect(e.data).toBe(null);
 
       expect(e.type).not.toBe('error');
       expect(e.data).not.toBe(fail);
