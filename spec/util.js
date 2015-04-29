@@ -12,7 +12,7 @@ var scxmld = require('../../'),
 
 module.exports = function(opts) {
   opts = opts || {};
-  opts.port = opts.port || 6003;
+  opts.port = opts.port || 8002;
   opts.host = 'http://localhost:' + opts.port;
   opts.baseApi = '/api/v1';
   opts.api = opts.host + opts.baseApi + '/';
@@ -21,7 +21,7 @@ module.exports = function(opts) {
   // Load every *.scxml file under scxml-test-framework/test
   opts.fileList = glob.sync('**/*.scxml', { cwd: opts.testFolder });
 
-  //opts.fileList = ['w3c-ecma/test200.txml.scxml', 'w3c-ecma/test200.txml.scxml', 'w3c-ecma/test200.txml.scxml', 'w3c-ecma/test200.txml.scxml'];
+  //opts.fileList = ['w3c-ecma/test175.txml.scxml', 'w3c-ecma/test183.txml.scxml', 'w3c-ecma/test200.txml.scxml', 'w3c-ecma/test205.txml.scxml', 'w3c-ecma/test208.txml.scxml'];
   
   opts.beforeEach = function (done) {
     opts.startServer(done);
@@ -136,7 +136,7 @@ module.exports = function(opts) {
 
   opts.send = function (id, event, result, delayBefore, done) {
     if(delayBefore) {
-      setTimeout(sendEvent, delayBefore + 1000);
+      setTimeout(sendEvent, delayBefore + 2000);
     } else {
       sendEvent();
     }
