@@ -20,8 +20,6 @@ module.exports = function(opts) {
 
   // Load every *.scxml file under scxml-test-framework/test
   opts.fileList = glob.sync('**/*.scxml', { cwd: opts.testFolder });
-
-  //opts.fileList = ['w3c-ecma/test175.txml.scxml', 'w3c-ecma/test183.txml.scxml', 'w3c-ecma/test200.txml.scxml', 'w3c-ecma/test205.txml.scxml', 'w3c-ecma/test208.txml.scxml'];
   
   opts.beforeEach = function (done) {
     opts.startServer(done);
@@ -136,7 +134,7 @@ module.exports = function(opts) {
 
   opts.send = function (id, event, result, delayBefore, done) {
     if(delayBefore) {
-      setTimeout(sendEvent, delayBefore + 2000);
+      setTimeout(sendEvent, delayBefore);
     } else {
       sendEvent();
     }
