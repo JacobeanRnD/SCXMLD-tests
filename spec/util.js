@@ -20,7 +20,7 @@ module.exports = function(opts) {
 
   // Load every *.scxml file under scxml-test-framework/test
   opts.fileList = glob.sync('**/*.scxml', { cwd: opts.testFolder });
-  
+
   opts.beforeEach = function (done) {
     opts.startServer(done);
   };
@@ -149,7 +149,8 @@ module.exports = function(opts) {
 
         if(error || response.statusCode !== 200) {
           console.log('send error', error || response.body);
-          return done();
+          if(done) return done();
+          else return;
         }
         
         expect(response.statusCode).toBe(200);
