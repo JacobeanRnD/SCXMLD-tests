@@ -63,21 +63,23 @@ describe('SCXMLD - scxml-test-framework', function () {
       if(events.length > 0) {
         // Run eventful tests by sending events and checking the result
         util.saveStatechart(chartName, util.read(file), settings.attachments, function () {
-          util.runInstance(instanceId, function () {
-            // If testname.json files contains events we can run them without listening to changes
-            // Because they have nextConfiguration set, thus we know what the end result should be
-            async.eachSeries(events, function (eventDetails, done) {
-              // Send events one after another, waiting for the previous one
-              util.send(instanceId, eventDetails.event, eventDetails.nextConfiguration, eventDetails.delayBefore, done);
-            }, function () {
-              done();
+          util.createInstance(instanceId, function () {
+            util.send(instanceId, { name: 'system.start'}, null, null, function () {
+              // If testname.json files contains events we can run them without listening to changes
+              // Because they have nextConfiguration set, thus we know what the end result should be
+              async.eachSeries(events, function (eventDetails, done) {
+                // Send events one after another, waiting for the previous one
+                util.send(instanceId, eventDetails.event, eventDetails.nextConfiguration, eventDetails.delayBefore, done);
+              }, function () {
+                done();
+              });
             });
           });
         });
       } else {
         // Run eventless tests with listening to changes
         util.saveStatechart(chartName, util.read(file), settings.attachments, function () {
-          util.runInstance(instanceId, function () {
+          util.createInstance(instanceId, function () {
             // Provide pass/fail parameters and set it free
             // If it passes, it was, and always will be successful.
             // If it never returns, it was never yours to begin with.
@@ -85,6 +87,6 @@ describe('SCXMLD - scxml-test-framework', function () {
           });
         });
       }
-    });
+    }, 10000);
   });
 });

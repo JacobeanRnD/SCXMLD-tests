@@ -12,7 +12,7 @@ var scxmld = require('../../'),
 
 module.exports = function(opts) {
   opts = opts || {};
-  opts.port = opts.port || 6003;
+  opts.port = opts.port || 8002;
   opts.host = 'http://localhost:' + opts.port;
   opts.baseApi = '/api/v1';
   opts.api = opts.host + opts.baseApi + '/';
@@ -20,19 +20,8 @@ module.exports = function(opts) {
 
   // Load every *.scxml file under scxml-test-framework/test
   opts.fileList = glob.sync('**/*.scxml', { cwd: opts.testFolder });
-  
+
   opts.beforeEach = function (done) {
-    if(opts.server) {
-      console.log('\u001b[31mCleanup timed out server\u001b[0m');
-      // This is a workaround for jasmine
-      // Jasmine doesn't cleanup on timeouts
-      opts.server.close(function () {
-        delete opts.server;
-
-        opts.startServer(done);        
-      });
-    }
-
     opts.startServer(done);
   };
 
@@ -124,7 +113,7 @@ module.exports = function(opts) {
     }
   };
 
-  opts.runInstance = function (id, result, done) {
+  opts.createInstance = function (id, done) {
     request({
       url: opts.api + id,
       method: 'PUT'
@@ -138,12 +127,6 @@ module.exports = function(opts) {
 
       expect(response.statusCode).toBe(201);
       expect(response.headers.location).toBe(id);
-
-      if(typeof(result) === 'function') {
-        done = result; 
-      } else {
-        expect(JSON.parse(response.headers['x-configuration']).sort()).toEqual(result.sort());
-      }
 
       done();
     });
@@ -166,7 +149,8 @@ module.exports = function(opts) {
 
         if(error || response.statusCode !== 200) {
           console.log('send error', error || response.body);
-          return done();
+          if(done) return done();
+          else return;
         }
         
         expect(response.statusCode).toBe(200);
@@ -175,7 +159,7 @@ module.exports = function(opts) {
     }
 
     function checkResult (states, result, done) {
-      expect(states.sort()).toEqual(result.sort());
+      if(result) expect(states.sort()).toEqual(result.sort());
 
       if(done) done();
     }
@@ -214,7 +198,9 @@ module.exports = function(opts) {
     var es = new eventsource(opts.api + id + '/_changes');
 
     function eventAction (e) {
-      console.log(JSON.stringify({ type: e.type, data: e.data }));
+      console.log('event', JSON.stringify({ type: e.type, data: e.data }));
+
+      if(e.type === 'error') expect(e.data).toBe(null);
 
       if(e.type === 'error') expect(e.data).toBe(null);
 
@@ -236,15 +222,8 @@ module.exports = function(opts) {
       expect(e.type).toBe('subscribed');
       expect(e.data.length).toBe(0);
 
-      // Check if instance is already on pass/fail state
-      opts.getInstanceConfiguration(id, function (result) {
-        var currentStates = result.data.instance.snapshot[0];
-
-        // Simulate receiving changes
-        currentStates.forEach(function (state) {
-          eventAction({ type: 'onEntry', data: state });
-        });
-      });
+      // Start the instance after subscription
+      opts.send(id, { name: 'system.start' }, null, null);
 
       // Trigger callback and let test know that it started listening
       if(startedListening) startedListening();
