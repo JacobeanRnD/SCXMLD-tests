@@ -22,6 +22,9 @@ module.exports = function(opts) {
   opts.fileList = glob.sync('**/*.scxml', { cwd: opts.testFolder });
 
   opts.beforeEach = function (done) {
+    if(process.env.SIMULATION_PROVIDER) console.log('\n\nCUSTOM SIMULATION:', process.env.SIMULATION_PROVIDER);
+    if(process.env.DB_PROVIDER) console.log('CUSTOM DATABASE:', process.env.DB_PROVIDER);
+
     opts.startServer(done);
   };
 
@@ -42,6 +45,7 @@ module.exports = function(opts) {
     opts.server.close(function () {
       delete opts.server;
 
+      console.log('\n');
       done();
     });
   };
