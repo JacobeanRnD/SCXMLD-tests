@@ -44,8 +44,7 @@ module.exports = function(opts) {
     //On success, delete server, call done()
     opts.server.close(function () {
       delete opts.server;
-
-      console.log('\n');
+      
       done();
     });
   };
