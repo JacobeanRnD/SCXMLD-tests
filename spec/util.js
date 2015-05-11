@@ -202,8 +202,6 @@ module.exports = function(opts) {
     var es = new eventsource(opts.api + id + '/_changes');
 
     function eventAction (e) {
-      console.log('event', JSON.stringify({ type: e.type, data: e.data }));
-
       if(e.type === 'error') expect(e.data).toBe(null);
 
       if(e.type === 'error') expect(e.data).toBe(null);
