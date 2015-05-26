@@ -11,8 +11,12 @@ var instanceId = 'test';
 
 describe('SCXMLD - scxml-test-framework', function () {
   beforeEach(util.beforeEach);
-  afterEach(util.afterEach);
-
+  afterEach(function (done) {
+    util.deleteInstance(instanceId, function () {
+      util.afterEach(done);
+    });
+  });
+  
   // Run below code for all tests
   util.fileList.forEach(function (file) {
     // Don't run ignored tests

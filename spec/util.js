@@ -221,8 +221,6 @@ module.exports = function(opts) {
         console.log('delete instance conf error', error);
         return done();
       }
-      
-      expect(response.statusCode).toBe(200);
 
       done();
     });
