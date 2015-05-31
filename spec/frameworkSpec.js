@@ -7,16 +7,18 @@ var util = require('./util')(),
   path = require('path'),
   ignoredTests = require('../ignoredTests.json');
 
-var instanceId = 'test';
+var chartName = 'helloworld.scxml',
+  instanceId = chartName + '/test';
 
 describe('SCXMLD - scxml-test-framework', function () {
   beforeEach(util.beforeEach);
-  afterEach(function (done) {
-    util.deleteInstance(instanceId, function () {
-      util.afterEach(done);
+  
+  afterEach(function (done) { 
+    util.deleteStatechart(chartName, function(){
+      util.afterEach(done); 
     });
   });
-  
+
   // Run below code for all tests
   util.fileList.forEach(function (file) {
     // Don't run ignored tests
@@ -45,13 +47,22 @@ describe('SCXMLD - scxml-test-framework', function () {
     
     if(settings.finalPass) passState = settings.finalPass[0];
 
+    if(settings.attachments && settings.attachments.length > 0) {
+      // Resolve attachment paths
+      settings.attachments.forEach(function (fileName, i) {
+        settings.attachments[i] = pathfolders[pathfolders.length - 2] + '/' + fileName;
+      });
+
+      console.log('attachment list', settings.attachments);
+    }
+
     it('should pass ' + testName, function (done) {
       console.log('\n\u001b[34m' + testName + '\u001b[0m');
       console.log('Pass state:', passState);
 
       if(events.length > 0) {
         // Run eventful tests by sending events and checking the result
-        util.startStatechart(util.getStateChartPath(file), function () {
+        util.saveStatechart(chartName, util.read(file), settings.attachments, function () {
           util.createInstance(instanceId, function () {
             util.send(instanceId, { name: 'system.start'}, null, null, function () {
               // If testname.json files contains events we can run them without listening to changes
@@ -67,7 +78,7 @@ describe('SCXMLD - scxml-test-framework', function () {
         });
       } else {
         // Run eventless tests with listening to changes
-        util.startStatechart(util.getStateChartPath(file), function () {
+        util.saveStatechart(chartName, util.read(file), settings.attachments, function () {
           util.createInstance(instanceId, function () {
             // Provide pass/fail parameters and set it free
             // If it passes, it was, and always will be successful.

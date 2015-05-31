@@ -6,13 +6,15 @@ var scxmld = require('../../'),
   request = require('request'),
   eventsource = require('eventsource'),
   path = require('path'),
+  fs = require('fs'),
+  archiver = require('archiver'),
   glob = require('glob');
 
 module.exports = function(opts) {
   opts = opts || {};
   opts.port = opts.port || 8002;
   opts.host = 'http://localhost:' + opts.port;
-  opts.baseApi = '/api/v3';
+  opts.baseApi = '/api/v1';
   opts.api = opts.host + opts.baseApi + '/';
   opts.testFolder = path.resolve(__dirname + '/../node_modules/scxml-test-framework/test') + '/';
 
@@ -23,11 +25,11 @@ module.exports = function(opts) {
     if(process.env.SIMULATION_PROVIDER) console.log('\nCUSTOM SIMULATION:', process.env.SIMULATION_PROVIDER);
     if(process.env.DB_PROVIDER) console.log('CUSTOM DATABASE:', process.env.DB_PROVIDER);
 
-    done();
+    opts.startServer(done);
   };
 
-  opts.startServer = function (stateChartPath, done) {
-    scxmld.initExpress({ pathToModel: stateChartPath, port: opts.port }, function (err, express) {
+  opts.startServer = function (done) {
+    scxmld.initExpress({ port: opts.port }, function (err, express) {
       if(err) {
         console.log(err);
         return done();
@@ -60,10 +62,58 @@ module.exports = function(opts) {
                       '  </state>\n' +
                       '</scxml>';
 
-  opts.startStatechart = function (stateChartPath, done) {
-    opts.startServer(stateChartPath, function () {
-       opts.deleteInstance('test', done);
-    });
+  opts.saveStatechart = function (name, fileContent, attachments, done) {
+    if(attachments && attachments.length > 0) {
+      console.log('attachments', attachments);
+      var archive = archiver.create('tar');
+      var tarballBuffer = '';
+
+      archive.on('data', function (data) {
+        tarballBuffer += data;
+      });
+
+      archive.on('end', function () {
+        console.log('archive ended');
+        saveStatechart(tarballBuffer, { 'content-type': 'application/x-tar' });
+      });
+
+      archive.append(fileContent, { name: 'index.scxml' });
+
+      attachments.forEach(function (fileName) {
+        console.log('appending', opts.testFolder + fileName);
+        archive.append(fs.createReadStream(opts.testFolder + fileName), { name: path.basename(fileName) });  
+      });
+
+      archive.finalize();
+    } else
+      saveStatechart(fileContent);
+
+    function saveStatechart(content, headers) {
+      request({
+        url: opts.api + name,
+        method: 'PUT',
+        body: content,
+        headers: headers
+      }, function (error, response) {
+        expect(error).toBeNull();
+
+        if(error || response.statusCode !== 201) {
+          console.log('save statechart error', error || response.body);
+          return done();
+        }
+
+        expect(response.statusCode).toBe(201);
+        expect(JSON.parse(response.body)).toEqual({
+          name: 'success.create.definition',
+          data: {
+            chartName: name
+          }
+        });
+        expect(response.headers.location).toBe(name);
+
+        done();
+      });
+    }
   };
 
   opts.createInstance = function (id, done) {
@@ -210,24 +260,27 @@ module.exports = function(opts) {
     });
   };
 
-  opts.deleteInstance = function (id, done) {
+  opts.deleteStatechart = function(scName, done) {
     request({
-      url: opts.api + id,
+      url: opts.api + scName,
       method: 'DELETE'
     }, function (error, response) {
       expect(error).toBeNull();
 
-      if(error) {
-        console.log('delete instance conf error', error);
-        return done();
+      if(error || response.statusCode !== 200) {
+        console.log('error on sc delete', error || response.body);
+        return done(error);
       }
+      
+      expect(response.statusCode).toBe(200);
 
       done();
+
     });
   };
 
-  opts.getStateChartPath = function (path) {
-    return opts.testFolder + path;
+  opts.read = function (path) {
+    return fs.readFileSync(opts.testFolder + path, 'utf-8');
   };
 
   return opts;
