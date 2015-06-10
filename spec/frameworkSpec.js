@@ -11,12 +11,18 @@ var instanceId = 'test';
 
 describe('SCXMLD - scxml-test-framework', function () {
   beforeEach(util.beforeEach);
-  afterEach(function (done) {
-    util.deleteInstance(instanceId, function () {
-      util.afterEach(done);
-    });
-  });
   
+  afterEach(function (done) {
+    //add a magic 100ms timeout to give the server time to finish processing events
+    //TODO: remove this in favor of decoupling client and server
+    setTimeout(function(){
+      util.deleteInstance(instanceId, function () {
+        console.log('deleteInstance cb',instanceId);
+        util.afterEach(done);
+      });
+    },100);
+  });
+
   // Run below code for all tests
   util.fileList.forEach(function (file) {
     // Don't run ignored tests
